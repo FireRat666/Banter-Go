@@ -21,7 +21,7 @@ To add the Go board to your Banter space, include the `Go.js` script in your `in
 ### Basic Embed
 
 ```html
-<script src="Go.js"></script>
+<script src="https://banter-go.firer.at/Go.js"></script>
 ```
 
 ### Configuration via URL Parameters
@@ -43,7 +43,7 @@ You can configure the board's position, size, and behavior by appending paramete
 **Example:**
 
 ```html
-<script src="Go.js?boardPosition=0 1 2&boardSize=13&instance=game1"></script>
+<script src="https://banter-go.firer.at/Go.js?boardPosition=0 1 2&boardSize=13&instance=game1"></script>
 ```
 
 ## How to Play
