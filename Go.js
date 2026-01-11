@@ -11,7 +11,7 @@
         boardScale: new BS.Vector3(1, 1, 1),
         resetPosition: new BS.Vector3(0.3, -1.2, 0), // Moved slightly right
         passPosition: new BS.Vector3(-0.3, -1.2, 0), // New Pass button left
-        scoreboardPosition: new BS.Vector3(0, 0.9, 0),
+        scoreboardPosition: new BS.Vector3(0, 1.6, 0),
         resetRotation: new BS.Vector3(0, 0, 0),
         resetScale: new BS.Vector3(1, 1, 1),
         instance: window.location.href.split('?')[0],
@@ -375,7 +375,7 @@
 
         // Background
         await createBanterObject(obj, BS.GeometryType.BoxGeometry,
-            { width: 1.2, height: 0.3, depth: 0.02 },
+            { width: 5.0, height: 1.2, depth: 0.02 },
             '#F5F5DC', // Beige
             new BS.Vector3(0, 0, 0)
         );
@@ -385,13 +385,14 @@
         await textObj.SetParent(obj, false);
         let tt = await textObj.AddComponent(new BS.Transform());
         tt.localPosition = new BS.Vector3(0, 0, 0.02);
+        tt.localEulerAngles = new BS.Vector3(0, 180, 0);
 
         state.scoreboard = await textObj.AddComponent(new BS.BanterText(
-            "Captures\nBlack: 0   White: 0",
+            "Black's Turn\nCaptures\nBlack: 0   White: 0",
             new BS.Vector4(0, 0, 0, 1),
             BS.HorizontalAlignment.Center,
             BS.VerticalAlignment.Center,
-            0.15, false, false, new BS.Vector2(1.2, 0.3)
+            0.6, false, false, new BS.Vector2(5.0, 1.2)
         ));
     }
 
@@ -476,7 +477,8 @@
         }
 
         if (state.scoreboard) {
-            state.scoreboard.text = `Captures\nBlack: ${state.game.captures[1]}   White: ${state.game.captures[2]}`;
+            const turn = state.game.currentPlayer === 1 ? "Black's Turn" : "White's Turn";
+            state.scoreboard.text = `${turn}\nCaptures\nBlack: ${state.game.captures[1]}   White: ${state.game.captures[2]}`;
         }
     }
 
