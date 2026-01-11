@@ -360,7 +360,7 @@
         let lt = await label.AddComponent(new BS.Transform());
         lt.localPosition = new BS.Vector3(0, 0, 0.03);
         await label.AddComponent(new BS.BanterText(
-            name, new BS.Vector4(1, 1, 1, 1), BS.HorizontalAlignment.Center, BS.VerticalAlignment.Center, 0.05, false, false, new BS.Vector2(0.3, 0.1)
+            name, new BS.Vector4(1, 1, 1, 1), BS.HorizontalAlignment.Center, BS.VerticalAlignment.Center, 0.5, false, false, new BS.Vector2(3, 1)
         ));
 
         btn.On('click', onClick);
@@ -375,7 +375,7 @@
 
         // Background
         await createBanterObject(obj, BS.GeometryType.BoxGeometry,
-            { width: 5.0, height: 1.2, depth: 0.02 },
+            { width: 1.2, height: 0.3, depth: 0.02 },
             '#F5F5DC', // Beige
             new BS.Vector3(0, 0, 0)
         );
