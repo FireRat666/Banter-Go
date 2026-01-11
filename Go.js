@@ -327,13 +327,13 @@
 
         if (!config.hideUI) {
             // Reset Button
-            const resetBtn = await createButton("Reset", config.resetPosition, '#333333', () => {
+            const resetBtn = await createButton("Reset", config.resetPosition, '#960000', () => {
                 state.game.reset();
                 syncState();
             });
             
             // Pass Button
-            const passBtn = await createButton("Pass", config.passPosition, '#555555', () => {
+            const passBtn = await createButton("Pass", config.passPosition, '#00249c', () => {
                 handlePass();
             });
 
