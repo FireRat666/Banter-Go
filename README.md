@@ -34,7 +34,7 @@ You can configure the board's position, size, and behavior by appending paramete
 | `boardRotation` | Rotation of the board (x y z) | `0 0 0` | `boardRotation=0 45 0` |
 | `boardScale` | Scale of the board (x y z) | `1 1 1` | `boardScale=0.5 0.5 0.5` |
 | `boardSize` | Grid size (e.g., 19, 13, 9) | `19` | `boardSize=9` |
-| `scoreboardPosition` | Position of the scoreboard (x y z) | `0 1.6 0` | `scoreboardPosition=0 2 0` |
+| `scoreboardPosition` | Position of the scoreboard (x y z) | `0 1.3 0` | `scoreboardPosition=0 2 0` |
 | `scoreboardRotation` | Rotation of the scoreboard (x y z) | `0 0 0` | `scoreboardRotation=0 180 0` |
 | `scoreboardScale` | Scale of the scoreboard (x y z) | `1 1 1` | `scoreboardScale=1.5 1.5 1.5` |
 | `hideUI` | Hide the Reset/Pass buttons | `false` | `hideUI=true` |

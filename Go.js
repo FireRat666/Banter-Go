@@ -11,7 +11,7 @@
         boardScale: new BS.Vector3(1, 1, 1),
         resetPosition: new BS.Vector3(0.3, -1.2, 0), // Moved slightly right
         passPosition: new BS.Vector3(-0.3, -1.2, 0), // New Pass button left
-        scoreboardPosition: new BS.Vector3(0, 1.6, 0),
+        scoreboardPosition: new BS.Vector3(0, 1.3, 0),
         scoreboardRotation: new BS.Vector3(0, 0, 0),
         scoreboardScale: new BS.Vector3(1, 1, 1),
         resetRotation: new BS.Vector3(0, 0, 0),
@@ -365,6 +365,7 @@
         await label.SetParent(btn, false);
         let lt = await label.AddComponent(new BS.Transform());
         lt.localPosition = new BS.Vector3(0, 0, 0.03);
+        lt.localEulerAngles = new BS.Vector3(0, 180, 0);
         await label.AddComponent(new BS.BanterText(
             name, new BS.Vector4(1, 1, 1, 1), BS.HorizontalAlignment.Center, BS.VerticalAlignment.Center, 0.5, false, false, new BS.Vector2(3, 1)
         ));
