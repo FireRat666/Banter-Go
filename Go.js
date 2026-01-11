@@ -353,6 +353,16 @@
         let rt = btn.GetComponent(BS.ComponentType.Transform);
         rt.localEulerAngles = config.resetRotation;
         rt.localScale = config.resetScale;
+        
+        // Add Text Label
+        const label = await new BS.GameObject("Label").Async();
+        await label.SetParent(btn, false);
+        let lt = await label.AddComponent(new BS.Transform());
+        lt.localPosition = new BS.Vector3(0, 0, 0.03);
+        await label.AddComponent(new BS.BanterText(
+            name, new BS.Vector4(1, 1, 1, 1), BS.HorizontalAlignment.Center, BS.VerticalAlignment.Center, 0.05, false, false, new BS.Vector2(0.3, 0.1)
+        ));
+
         btn.On('click', onClick);
         return btn;
     }
@@ -363,12 +373,25 @@
         let t = await obj.AddComponent(new BS.Transform());
         t.localPosition = config.scoreboardPosition;
 
-        state.scoreboard = await obj.AddComponent(new BS.BanterText(
+        // Background
+        await createBanterObject(obj, BS.GeometryType.BoxGeometry,
+            { width: 1.2, height: 0.3, depth: 0.02 },
+            '#F5F5DC', // Beige
+            new BS.Vector3(0, 0, 0)
+        );
+
+        // Text
+        const textObj = await new BS.GameObject("ScoreText").Async();
+        await textObj.SetParent(obj, false);
+        let tt = await textObj.AddComponent(new BS.Transform());
+        tt.localPosition = new BS.Vector3(0, 0, 0.02);
+
+        state.scoreboard = await textObj.AddComponent(new BS.BanterText(
             "Captures\nBlack: 0   White: 0",
             new BS.Vector4(0, 0, 0, 1),
             BS.HorizontalAlignment.Center,
             BS.VerticalAlignment.Center,
-            0.15, false, false, new BS.Vector2(2, 0.5)
+            0.15, false, false, new BS.Vector2(1.2, 0.3)
         ));
     }
 
