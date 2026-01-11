@@ -12,6 +12,8 @@
         resetPosition: new BS.Vector3(0.3, -1.2, 0), // Moved slightly right
         passPosition: new BS.Vector3(-0.3, -1.2, 0), // New Pass button left
         scoreboardPosition: new BS.Vector3(0, 1.6, 0),
+        scoreboardRotation: new BS.Vector3(0, 0, 0),
+        scoreboardScale: new BS.Vector3(1, 1, 1),
         resetRotation: new BS.Vector3(0, 0, 0),
         resetScale: new BS.Vector3(1, 1, 1),
         instance: window.location.href.split('?')[0],
@@ -51,6 +53,10 @@
         config.boardScale = parseVector3(params.get('boardScale'), config.boardScale);
         config.boardPosition = parseVector3(params.get('boardPosition'), config.boardPosition);
         config.boardRotation = parseVector3(params.get('boardRotation'), config.boardRotation);
+
+        config.scoreboardPosition = parseVector3(params.get('scoreboardPosition'), config.scoreboardPosition);
+        config.scoreboardRotation = parseVector3(params.get('scoreboardRotation'), config.scoreboardRotation);
+        config.scoreboardScale = parseVector3(params.get('scoreboardScale'), config.scoreboardScale);
     }
 
     // --- Go Game Logic ---
@@ -372,6 +378,8 @@
         await obj.SetParent(state.root, false);
         let t = await obj.AddComponent(new BS.Transform());
         t.localPosition = config.scoreboardPosition;
+        t.localEulerAngles = config.scoreboardRotation;
+        t.localScale = config.scoreboardScale;
 
         // Background
         await createBanterObject(obj, BS.GeometryType.BoxGeometry,
