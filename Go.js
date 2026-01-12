@@ -11,6 +11,8 @@
         boardScale: new BS.Vector3(1, 1, 1),
         resetPosition: new BS.Vector3(0.3, -1.2, 0), // Moved slightly right
         passPosition: new BS.Vector3(-0.3, -1.2, 0), // New Pass button left
+        passRotation: new BS.Vector3(0, 0, 0),
+        passScale: new BS.Vector3(1, 1, 1),
         scoreboardPosition: new BS.Vector3(0, 1.3, 0),
         scoreboardRotation: new BS.Vector3(0, 0, 0),
         scoreboardScale: new BS.Vector3(1, 1, 1),
@@ -57,6 +59,14 @@
         config.scoreboardPosition = parseVector3(params.get('scoreboardPosition'), config.scoreboardPosition);
         config.scoreboardRotation = parseVector3(params.get('scoreboardRotation'), config.scoreboardRotation);
         config.scoreboardScale = parseVector3(params.get('scoreboardScale'), config.scoreboardScale);
+
+        config.resetPosition = parseVector3(params.get('resetPosition'), config.resetPosition);
+        config.resetRotation = parseVector3(params.get('resetRotation'), config.resetRotation);
+        config.resetScale = parseVector3(params.get('resetScale'), config.resetScale);
+
+        config.passPosition = parseVector3(params.get('passPosition'), config.passPosition);
+        config.passRotation = parseVector3(params.get('passRotation'), config.passRotation);
+        config.passScale = parseVector3(params.get('passScale'), config.passScale);
     }
 
     // --- Go Game Logic ---
@@ -331,34 +341,55 @@
             }
         }
 
-        if (!config.hideUI) {
-            // Reset Button
-            const resetBtn = await createButton("Reset", config.resetPosition, '#960000', () => {
+        // --- Create UI ---
+        const uiRoot = await new BS.GameObject("UI_Root").Async();
+        await uiRoot.AddComponent(new BS.Transform());
+        
+        // Reset Button
+        const resetBtn = await createButton(
+            "Reset", 
+            config.resetPosition, 
+            config.resetRotation,
+            config.resetScale,
+            '#960000', 
+            () => {
                 state.game.reset();
                 syncState();
-            });
-            
-            // Pass Button
-            const passBtn = await createButton("Pass", config.passPosition, '#00249c', () => {
+            }
+        );
+        await resetBtn.SetParent(uiRoot, false);
+        
+        // Pass Button
+        const passBtn = await createButton(
+            "Pass", 
+            config.passPosition, 
+            config.passRotation,
+            config.passScale,
+            '#00249c', 
+            () => {
                 handlePass();
-            });
+            }
+        );
+        await passBtn.SetParent(uiRoot, false);
 
-            await createScoreboard();
-        }
+        await createScoreboard(uiRoot);
+
 
         setupListeners();
         checkForExistingState();
         console.log("Go: Setup Scene Complete");
     }
 
-    async function createButton(name, pos, color, onClick) {
-        const btn = await createBanterObject(state.root, BS.GeometryType.BoxGeometry,
+    async function createButton(name, pos, rot, scale, color, onClick) {
+        const btn = await createBanterObject(null, BS.GeometryType.BoxGeometry,
             { width: 0.3, height: 0.1, depth: 0.05 },
-            color, pos, true
+            color, pos, true, config.hideUI ? 0.0 : 1.0
         );
         let rt = btn.GetComponent(BS.ComponentType.Transform);
-        rt.localEulerAngles = config.resetRotation;
-        rt.localScale = config.resetScale;
+        if(!rt) rt = await btn.AddComponent(new BS.Transform());
+        rt.localPosition = pos;
+        rt.localEulerAngles = rot;
+        rt.localScale = scale;
         
         // Add Text Label
         const label = await new BS.GameObject("Label").Async();
@@ -374,19 +405,22 @@
         return btn;
     }
 
-    async function createScoreboard() {
+    async function createScoreboard(parent) {
         const obj = await new BS.GameObject("Scoreboard").Async();
-        await obj.SetParent(state.root, false);
+        await obj.SetParent(parent, false);
         let t = await obj.AddComponent(new BS.Transform());
         t.localPosition = config.scoreboardPosition;
         t.localEulerAngles = config.scoreboardRotation;
         t.localScale = config.scoreboardScale;
 
         // Background
+        const bgOpacity = config.hideUI ? 0.0 : 1.0;
         await createBanterObject(obj, BS.GeometryType.BoxGeometry,
             { width: 1.2, height: 0.3, depth: 0.02 },
             '#F5F5DC', // Beige
-            new BS.Vector3(0, 0, 0)
+            new BS.Vector3(0, 0, 0),
+            false, // No collider for background
+            bgOpacity
         );
 
         // Text
@@ -398,7 +432,7 @@
 
         state.scoreboard = await textObj.AddComponent(new BS.BanterText(
             "Black's Turn\nCaptures\nBlack: 0   White: 0",
-            new BS.Vector4(0, 0, 0, 1),
+            new BS.Vector4(0, 0, 0, bgOpacity), // Use opacity for text as well
             BS.HorizontalAlignment.Center,
             BS.VerticalAlignment.Center,
             0.6, false, false, new BS.Vector2(5.0, 1.2)
