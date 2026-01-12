@@ -454,7 +454,9 @@
 
     async function createBanterObject(parent, type, dims, colorHex, pos, hasCollider = false, opacity = 1.0) {
         const obj = await new BS.GameObject("Geo").Async();
-        await obj.SetParent(parent, false);
+        if (parent) {
+            await obj.SetParent(parent, false);
+        }
         let t = await obj.AddComponent(new BS.Transform());
         if (pos) t.localPosition = pos;
         const fullArgs = getGeoArgs(type, dims);
