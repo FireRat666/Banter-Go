@@ -386,8 +386,6 @@
             color, pos, true, config.hideUI ? 0.0 : 1.0
         );
         let rt = btn.GetComponent(BS.ComponentType.Transform);
-        if(!rt) rt = await btn.AddComponent(new BS.Transform());
-        rt.localPosition = pos;
         rt.localEulerAngles = rot;
         rt.localScale = scale;
         
