@@ -344,9 +344,11 @@
         // --- Create UI ---
         const uiRoot = await new BS.GameObject("UI_Root").Async();
         await uiRoot.AddComponent(new BS.Transform());
+        await uiRoot.SetParent(state.root, false);
         
         // Reset Button
-        const resetBtn = await createButton(
+        await createButton(
+            uiRoot,
             "Reset", 
             config.resetPosition, 
             config.resetRotation,
@@ -357,10 +359,10 @@
                 syncState();
             }
         );
-        await resetBtn.SetParent(uiRoot, false);
         
         // Pass Button
-        const passBtn = await createButton(
+        await createButton(
+            uiRoot,
             "Pass", 
             config.passPosition, 
             config.passRotation,
@@ -370,7 +372,6 @@
                 handlePass();
             }
         );
-        await passBtn.SetParent(uiRoot, false);
 
         await createScoreboard(uiRoot);
 
@@ -380,8 +381,8 @@
         console.log("Go: Setup Scene Complete");
     }
 
-    async function createButton(name, pos, rot, scale, color, onClick) {
-        const btn = await createBanterObject(null, BS.GeometryType.BoxGeometry,
+    async function createButton(parent, name, pos, rot, scale, color, onClick) {
+        const btn = await createBanterObject(parent, BS.GeometryType.BoxGeometry,
             { width: 0.3, height: 0.1, depth: 0.05 },
             color, pos, true, config.hideUI ? 0.0 : 1.0
         );
