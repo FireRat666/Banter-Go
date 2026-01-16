@@ -33,6 +33,10 @@ You can configure the board's position, size, and behavior by appending paramete
 | `instance` | Unique ID for this game instance. Use this to have multiple separate games in one space. | `URL path` | `instance=table1` |
 | `boardSize` | Grid size (e.g., 19, 13, 9). | `19` | `boardSize=9` |
 | `hideUI` | Makes the UI (buttons, scoreboard) invisible but still functional. | `false` | `hideUI=true` |
+| `hideBoard` | Hides the board geometry. | `false` | `hideBoard=true` |
+| `useCustomModels` | Use GLB models for pieces. | `false` | `useCustomModels=true` |
+| `lighting` | Shader type: 'lit' or 'unlit'. | `unlit` | `lighting=lit` |
+| `addLights` | Add directional light for lit mode. | `true` | `addLights=false` |
 | `boardPosition` | Position of the game board (x y z). | `0 1.5 0` | `boardPosition=0 1 -2` |
 | `boardRotation` | Rotation of the game board (x y z). | `0 0 0` | `boardRotation=0 45 0` |
 | `boardScale` | Scale of the game board (x y z). | `1 1 1` | `boardScale=0.5 0.5 0.5` |
