@@ -37,6 +37,7 @@ You can configure the board's position, size, and behavior by appending paramete
 | `useCustomModels` | Use GLB models for pieces. | `false` | `useCustomModels=true` |
 | `lighting` | Shader type: 'lit' or 'unlit'. | `unlit` | `lighting=lit` |
 | `addLights` | Add directional light for lit mode. | `true` | `addLights=false` |
+| `useAOBaking` | Bake Ambient Occlusion on board geometry. | `false` | `useAOBaking=true` |
 | `boardPosition` | Position of the game board (x y z). | `0 1.5 0` | `boardPosition=0 1 -2` |
 | `boardRotation` | Rotation of the game board (x y z). | `0 0 0` | `boardRotation=0 45 0` |
 | `boardScale` | Scale of the game board (x y z). | `1 1 1` | `boardScale=0.5 0.5 0.5` |

@@ -24,7 +24,11 @@
         hideBoard: false,
         useCustomModels: false,
         lighting: 'unlit',
-        addLights: true 
+        hideBoard: false,
+        useCustomModels: false,
+        lighting: 'unlit',
+        addLights: true,
+        useAOBaking: false
     };
 
     const COLORS = {
@@ -65,6 +69,7 @@
         if (params.has('useCustomModels')) config.useCustomModels = params.get('useCustomModels') === 'true';
         if (params.has('lighting')) config.lighting = params.get('lighting');
         if (params.has('addLights')) config.addLights = params.get('addLights') !== 'false';
+        if (params.has('useAOBaking')) config.useAOBaking = params.get('useAOBaking') === 'true';
 
         config.boardScale = parseVector3(params.get('boardScale'), config.boardScale);
         config.boardPosition = parseVector3(params.get('boardPosition'), config.boardPosition);
@@ -314,14 +319,19 @@
         }
 
         if (!config.hideBoard) {
+            // Group Board Visuals for Baking
+            const boardVisuals = await new BS.GameObject("Board_Visuals").Async();
+            await boardVisuals.SetParent(state.root, false);
+            await boardVisuals.AddComponent(new BS.Transform());
+
             // Create the board base
-            await createBanterObject(state.root, BS.GeometryType.BoxGeometry,
+            await createBanterObject(boardVisuals, BS.GeometryType.BoxGeometry,
                 { width: boardDimension + gap, height: boardDimension + gap, depth: boardThickness },
                 COLORS.board, new BS.Vector3(0, 0, -boardThickness / 2));
 
             // --- Construct Grid ---
             const gridRoot = await new BS.GameObject("Grid_Root").Async();
-            await gridRoot.SetParent(state.root, false);
+            await gridRoot.SetParent(boardVisuals, false);
             await gridRoot.AddComponent(new BS.Transform());
             const lineThickness = 0.003;
 
@@ -335,6 +345,21 @@
                 await createBanterObject(gridRoot, BS.GeometryType.BoxGeometry,
                     { width: boardDimension, height: lineThickness, depth: lineThickness },
                     '#000000', new BS.Vector3(0, pos, 0.01));
+            }
+
+            // Apply AO Baking if enabled
+            if (config.useAOBaking) {
+                console.log("Go: Baking AO...");
+                // Note: Subdivision level 2 provides decent quality for box primitives without excessive geometry
+                const baker = await boardVisuals.AddComponent(new BS.BanterAOBaking({
+                    subdivisionLevel: 2,
+                    sampleCount: 128,
+                    aoIntensity: 1.2,
+                    aoBias: 0.005,
+                    hideSourceObjects: true,
+                    targetShaderName: "Mobile/StylizedFakeLit"
+                }));
+                baker.BakeAO();
             }
         }
 
