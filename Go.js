@@ -370,58 +370,68 @@
 
         const pieceSize = gap * 0.45;
 
+        // Initialize arrays
         for (let r = 0; r < rows; r++) {
             state.slots[r] = [];
             state.cells[r] = [];
+        }
+
+        const creationPromises = [];
+
+        for (let r = 0; r < rows; r++) {
             for (let c = 0; c < cols; c++) {
-                const x = (c - (cols - 1) / 2) * gap;
-                const y = (r - (rows - 1) / 2) * -gap; // Invert Y
+                creationPromises.push((async () => {
+                    const x = (c - (cols - 1) / 2) * gap;
+                    const y = (r - (rows - 1) / 2) * -gap; // Invert Y
 
-                // Invisible clickable cell at intersection (Collider only, no mesh)
-                const cellObj = await createClickableCollider(state.root, new BS.Vector3(gap, gap, 0.05), new BS.Vector3(x, y, 0));
-                cellObj.On('click', () => handleCellClick(r, c));
-                state.cells[r][c] = cellObj;
+                    // Invisible clickable cell at intersection (Collider only, no mesh)
+                    const cellObj = await createClickableCollider(state.root, new BS.Vector3(gap, gap, 0.05), new BS.Vector3(x, y, 0));
+                    cellObj.On('click', () => handleCellClick(r, c));
+                    state.cells[r][c] = cellObj;
 
-                // Create Custom Models
-                let blackModel = null;
-                let whiteModel = null;
-                let greenModel = null;
-                let spherePiece = null;
+                    // Create Custom Models
+                    let blackModel = null;
+                    let whiteModel = null;
+                    let greenModel = null;
+                    let spherePiece = null;
 
-                if (config.useCustomModels) {
-                    const modelPos = new BS.Vector3(x, y, 0.0);
-                    blackModel = await createCustomPiece(state.piecesRoot, 1, modelPos);
-                    if(blackModel) blackModel.SetActive(false);
-                    
-                    whiteModel = await createCustomPiece(state.piecesRoot, 2, modelPos);
-                    if(whiteModel) whiteModel.SetActive(false);
+                    if (config.useCustomModels) {
+                        const modelPos = new BS.Vector3(x, y, 0.015); // Slightly raised to avoid z-fighting
+                        blackModel = await createCustomPiece(state.piecesRoot, 1, modelPos);
+                        if(blackModel) blackModel.SetActive(false);
+                        
+                        whiteModel = await createCustomPiece(state.piecesRoot, 2, modelPos);
+                        if(whiteModel) whiteModel.SetActive(false);
 
-                    greenModel = await createCustomPiece(state.piecesRoot, 'highlight', modelPos);
-                    if(greenModel) greenModel.SetActive(false);
-                } else {
-                    // Visible piece placeholder (starts inactive) - needs unique material for color changes
-                    spherePiece = await createBanterObject(state.piecesRoot, BS.GeometryType.SphereGeometry,
-                        { radius: pieceSize },
-                        COLORS.player1,
-                        new BS.Vector3(x, y, 0.04),
-                        false, 1.0, `piece_${r}_${c}`
-                    );
-                    // Flatten the sphere to look like a stone
-                    const pt = spherePiece.GetComponent(BS.ComponentType.Transform);
-                    pt.localScale = new BS.Vector3(1, 1, 0.3);
+                        greenModel = await createCustomPiece(state.piecesRoot, 'highlight', modelPos);
+                        if(greenModel) greenModel.SetActive(false);
+                    } else {
+                        // Visible piece placeholder (starts inactive) - needs unique material for color changes
+                        spherePiece = await createBanterObject(state.piecesRoot, BS.GeometryType.SphereGeometry,
+                            { radius: pieceSize },
+                            COLORS.player1,
+                            new BS.Vector3(x, y, 0.04),
+                            false, 1.0, `piece_${r}_${c}`
+                        );
+                        // Flatten the sphere to look like a stone
+                        const pt = spherePiece.GetComponent(BS.ComponentType.Transform);
+                        pt.localScale = new BS.Vector3(1, 1, 0.3);
 
-                    await spherePiece.SetLayer(5);
-                    spherePiece.SetActive(false);
-                }
+                        await spherePiece.SetLayer(5);
+                        spherePiece.SetActive(false);
+                    }
 
-                state.slots[r][c] = {
-                    sphere: spherePiece,
-                    blackModel: blackModel,
-                    whiteModel: whiteModel,
-                    greenModel: greenModel
-                };
+                    state.slots[r][c] = {
+                        sphere: spherePiece,
+                        blackModel: blackModel,
+                        whiteModel: whiteModel,
+                        greenModel: greenModel
+                    };
+                })());
             }
         }
+        
+        await Promise.all(creationPromises);
 
         // --- Create UI ---
         const uiRoot = await new BS.GameObject("UI_Root").Async();
@@ -584,13 +594,7 @@
         if (pos) t.localPosition = pos;
         
         // Scale and rotation for discs
-        t.localScale = new BS.Vector3(0.045, 0.045, 0.045); 
-        // If the models are discs lying flat in local space, we might not need rotation 
-        // But Connect4 rotated them 90 on X. If these are the same type of discs 
-        // (which are usually upright for Connect4?), we might need to rotate 90.
-        // However, for Go, we want them flat.
-        // If Disc*glb are built "standing up" (XY plane), 90 deg X rot makes them flat (XZ plane).
-        // Let's assume standard orientation and try rotating -90 or 90 to lay flat.
+        t.localScale = new BS.Vector3(0.04, 0.04, 0.04); 
         t.localEulerAngles = new BS.Vector3(90, 0, 0); 
 
         const url = getModelUrl(modelName);
