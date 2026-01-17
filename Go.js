@@ -376,11 +376,11 @@
             state.cells[r] = [];
         }
 
-        const creationPromises = [];
-
+        // Processing row by row to prevent game lag/crashing from too many concurrent creations
         for (let r = 0; r < rows; r++) {
+            const rowPromises = [];
             for (let c = 0; c < cols; c++) {
-                creationPromises.push((async () => {
+                rowPromises.push((async () => {
                     const x = (c - (cols - 1) / 2) * gap;
                     const y = (r - (rows - 1) / 2) * -gap; // Invert Y
 
@@ -429,9 +429,11 @@
                     };
                 })());
             }
+            // Await the entire row to complete before moving to the next
+            await Promise.all(rowPromises);
+            // Small yield to main thread to prevent UI freeze
+            await new Promise(resolve => setTimeout(resolve, 0));
         }
-        
-        await Promise.all(creationPromises);
 
         // --- Create UI ---
         const uiRoot = await new BS.GameObject("UI_Root").Async();
