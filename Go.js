@@ -389,43 +389,14 @@
                     cellObj.On('click', () => handleCellClick(r, c));
                     state.cells[r][c] = cellObj;
 
-                    // Create Custom Models
-                    let blackModel = null;
-                    let whiteModel = null;
-                    let greenModel = null;
-                    let spherePiece = null;
-
-                    if (config.useCustomModels) {
-                        const modelPos = new BS.Vector3(x, y, 0.015); // Slightly raised to avoid z-fighting
-                        blackModel = await createCustomPiece(state.piecesRoot, 1, modelPos);
-                        if(blackModel) blackModel.SetActive(false);
-                        
-                        whiteModel = await createCustomPiece(state.piecesRoot, 2, modelPos);
-                        if(whiteModel) whiteModel.SetActive(false);
-
-                        greenModel = await createCustomPiece(state.piecesRoot, 'highlight', modelPos);
-                        if(greenModel) greenModel.SetActive(false);
-                    } else {
-                        // Visible piece placeholder (starts inactive) - needs unique material for color changes
-                        spherePiece = await createBanterObject(state.piecesRoot, BS.GeometryType.SphereGeometry,
-                            { radius: pieceSize },
-                            COLORS.player1,
-                            new BS.Vector3(x, y, 0.04),
-                            false, 1.0, `piece_${r}_${c}`
-                        );
-                        // Flatten the sphere to look like a stone
-                        const pt = spherePiece.GetComponent(BS.ComponentType.Transform);
-                        pt.localScale = new BS.Vector3(1, 1, 0.3);
-
-                        await spherePiece.SetLayer(5);
-                        spherePiece.SetActive(false);
-                    }
-
+                    // Lazy Instantiation: Don't create pieces yet. They will be created in updateVisuals when needed.
                     state.slots[r][c] = {
-                        sphere: spherePiece,
-                        blackModel: blackModel,
-                        whiteModel: whiteModel,
-                        greenModel: greenModel
+                        sphere: null,
+                        blackModel: null,
+                        whiteModel: null,
+                        greenModel: null,
+                        x: x, // Store positions for lazy creation
+                        y: y
                     };
                 })());
             }
@@ -641,13 +612,19 @@
         BS.BanterScene.GetInstance().SetPublicSpaceProps({ [key]: JSON.stringify(data) });
     }
 
-    function updateVisuals() {
+    async function updateVisuals() {
+        if (!state.piecesRoot) return;
+        const gap = .08; 
+        const pieceSize = gap * 0.45;
+
         for (let r = 0; r < config.boardSize; r++) {
             for (let c = 0; c < config.boardSize; c++) {
                 const cell = state.game.board[r][c];
                 const slot = state.slots[r][c];
+                // Ensure slot exists (it should)
+                if(!slot) continue;
 
-                // Reset all
+                // Reset all existing
                 if (slot.sphere) slot.sphere.SetActive(false);
                 if (slot.blackModel) slot.blackModel.SetActive(false);
                 if (slot.whiteModel) slot.whiteModel.SetActive(false);
@@ -656,9 +633,35 @@
                 if (cell === 0) continue;
 
                 if (config.useCustomModels) {
-                     if (cell === 1 && slot.blackModel) slot.blackModel.SetActive(true);
-                     if (cell === 2 && slot.whiteModel) slot.whiteModel.SetActive(true);
+                     if (cell === 1) {
+                        if (!slot.blackModel) {
+                             const modelPos = new BS.Vector3(slot.x, slot.y, 0.015);
+                             slot.blackModel = await createCustomPiece(state.piecesRoot, 1, modelPos);
+                        }
+                        if (slot.blackModel) slot.blackModel.SetActive(true);
+                     }
+                     if (cell === 2) {
+                        if (!slot.whiteModel) {
+                             const modelPos = new BS.Vector3(slot.x, slot.y, 0.015);
+                             slot.whiteModel = await createCustomPiece(state.piecesRoot, 2, modelPos);
+                        }
+                        if (slot.whiteModel) slot.whiteModel.SetActive(true);
+                     }
                 } else {
+                     if (!slot.sphere) {
+                        const spherePiece = await createBanterObject(state.piecesRoot, BS.GeometryType.SphereGeometry,
+                            { radius: pieceSize },
+                            COLORS.player1,
+                            new BS.Vector3(slot.x, slot.y, 0.04),
+                            false, 1.0, `piece_${r}_${c}`
+                        );
+                        // Flatten piece
+                        const pt = spherePiece.GetComponent(BS.ComponentType.Transform);
+                        pt.localScale = new BS.Vector3(1, 1, 0.3);
+                        await spherePiece.SetLayer(5);
+                        slot.sphere = spherePiece;
+                     }
+                     
                      if (slot.sphere) {
                         slot.sphere.SetActive(true);
                         const mat = slot.sphere.GetComponent(BS.ComponentType.BanterMaterial);
