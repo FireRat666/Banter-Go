@@ -1,4 +1,5 @@
 (function () {
+window.addEventListener("unity-loaded", async () => {
     /**
      * Banter Go (Weiqi/Baduk) Embed Script
      * A fully synced multiplayer Go game for Banter.
@@ -284,14 +285,6 @@
         if (c.length === 3) c = c.split('').map(x => x + x).join('');
         const num = parseInt(c, 16);
         return new BS.Vector4(((num >> 16) & 255) / 255, ((num >> 8) & 255) / 255, (num & 255) / 255, alpha);
-    }
-
-    async function init() {
-        if (!window.BS) {
-            console.error("Banter SDK not found!");
-            return;
-        }
-        BS.BanterScene.GetInstance().On("unity-loaded", setupScene);
     }
 
     async function setupScene() {
@@ -721,5 +714,7 @@
         });
     }
 
-    init();
+    setupScene();
+    
+})
 })();
