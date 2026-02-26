@@ -1,4 +1,3 @@
-window.addEventListener("unity-loaded", async () => {
 (function () {
     /**
      * Banter Go (Weiqi/Baduk) Embed Script
@@ -7,24 +6,21 @@ window.addEventListener("unity-loaded", async () => {
 
     // --- Configuration ---
     const config = {
-        boardPosition: new BS.Vector3(0, 1.5, 0),
-        boardRotation: new BS.Vector3(0, 0, 0),
-        boardScale: new BS.Vector3(1, 1, 1),
-        resetPosition: new BS.Vector3(0.3, -1.2, 0), // Moved slightly right
-        passPosition: new BS.Vector3(-0.3, -1.2, 0), // New Pass button left
-        passRotation: new BS.Vector3(0, 0, 0),
-        passScale: new BS.Vector3(1, 1, 1),
-        scoreboardPosition: new BS.Vector3(0, 1.3, 0),
-        scoreboardRotation: new BS.Vector3(0, 0, 0),
-        scoreboardScale: new BS.Vector3(1, 1, 1),
-        resetRotation: new BS.Vector3(0, 0, 0),
-        resetScale: new BS.Vector3(1, 1, 1),
+        boardPosition: [0, 1.5, 0],
+        boardRotation: [0, 0, 0],
+        boardScale: [1, 1, 1],
+        resetPosition: [0.3, -1.2, 0], // Moved slightly right
+        passPosition: [-0.3, -1.2, 0], // New Pass button left
+        passRotation: [0, 0, 0],
+        passScale: [1, 1, 1],
+        scoreboardPosition: [0, 1.3, 0],
+        scoreboardRotation: [0, 0, 0],
+        scoreboardScale: [1, 1, 1],
+        resetRotation: [0, 0, 0],
+        resetScale: [1, 1, 1],
         instance: window.location.href.split('?')[0],
         hideUI: false,
         boardSize: 19, // Standard Go is 19x19
-        hideBoard: false,
-        useCustomModels: false,
-        lighting: 'unlit',
         hideBoard: false,
         useCustomModels: false,
         lighting: 'unlit',
@@ -52,13 +48,19 @@ window.addEventListener("unity-loaded", async () => {
         const s = str.trim();
         if (s.includes(' ')) {
             const parts = s.split(' ').map(Number);
-            if (parts.length >= 3) return new BS.Vector3(parts[0], parts[1], parts[2]);
+            if (parts.length >= 3) return [parts[0], parts[1], parts[2]];
+        }
+        const num = parseFloat(s);
+        if (!isNaN(num)) {
+            return [num, num, num];
         }
         return defaultVal;
     };
 
     // Parse URL params
     const currentScript = document.currentScript;
+    const scriptSrc = currentScript ? currentScript.src : null;
+
     if (currentScript) {
         const url = new URL(currentScript.src);
         const params = new URLSearchParams(url.search);
@@ -273,8 +275,8 @@ window.addEventListener("unity-loaded", async () => {
 
     function getModelUrl(modelName) {
         try {
-            if (currentScript) {
-                return new URL(`../Models/${modelName}`, currentScript.src).href;
+            if (scriptSrc) {
+                return new URL(`../Models/${modelName}`, scriptSrc).href;
             }
         } catch (e) { console.error("Error resolving model URL:", e); }
         return `../Models/${modelName}`;
@@ -714,7 +716,36 @@ window.addEventListener("unity-loaded", async () => {
         });
     }
 
-    setupScene();
+    // --- Main Initializer ---
+    let initialized = false;
+    const initGame = async () => {
+        if (initialized) return;
+        initialized = true;
+        console.log("Go: Initializing Game...");
+
+        // Convert config arrays to BS.Vector3 now that BS is available
+        config.boardPosition = new BS.Vector3(...config.boardPosition);
+        config.boardRotation = new BS.Vector3(...config.boardRotation);
+        config.boardScale = new BS.Vector3(...config.boardScale);
+        config.resetPosition = new BS.Vector3(...config.resetPosition);
+        config.resetRotation = new BS.Vector3(...config.resetRotation);
+        config.resetScale = new BS.Vector3(...config.resetScale);
+        config.passPosition = new BS.Vector3(...config.passPosition);
+        config.passRotation = new BS.Vector3(...config.passRotation);
+        config.passScale = new BS.Vector3(...config.passScale);
+        config.scoreboardPosition = new BS.Vector3(...config.scoreboardPosition);
+        config.scoreboardRotation = new BS.Vector3(...config.scoreboardRotation);
+        config.scoreboardScale = new BS.Vector3(...config.scoreboardScale);
+
+        await setupScene();
+    };
+
+    // --- Check for BS availability ---
+    if (window.BS) {
+        initGame();
+    } else {
+        window.addEventListener("unity-loaded", initGame);
+        window.addEventListener("bs-loaded", initGame);
+    }
 
 })();
-});
