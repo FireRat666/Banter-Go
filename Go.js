@@ -1,5 +1,5 @@
-(function () {
 window.addEventListener("unity-loaded", async () => {
+(function () {
     /**
      * Banter Go (Weiqi/Baduk) Embed Script
      * A fully synced multiplayer Go game for Banter.
@@ -715,6 +715,6 @@ window.addEventListener("unity-loaded", async () => {
     }
 
     setupScene();
-    
-})
+
 })();
+});

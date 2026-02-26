@@ -30,7 +30,9 @@
             transform.localPosition = new BS.Vector3(0, -0.05, 0); // Flush with 0
         }
 
-        createFloor();
+        window.addEventListener("bs-loaded", async () => {
+            createFloor();
+        });
     </script>
     <!-- 
        Banter Go Embed 
